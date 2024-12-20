@@ -46,6 +46,7 @@ class BasicWrapper {
                 }
             }
         });
+	this.plugin.managers.structure.component.state.options.hydrogens = 'only-polar';
 
         this.plugin.representation.structure.themes.colorThemeRegistry.add(StripedResidues.colorThemeProvider!);
         this.plugin.representation.structure.themes.colorThemeRegistry.add(CustomColorThemeProvider);
@@ -80,8 +81,33 @@ class BasicWrapper {
         });
     }
 
+    async loadmore({ url, format = 'mmcif', isBinary = false, assemblyId = '' }: LoadParams) {
+
+        const data = await this.plugin.builders.data.download({ url: Asset.Url(url), isBinary }, { state: { isGhost: true } });
+        const trajectory = await this.plugin.builders.structure.parseTrajectory(data, format);
+        await this.plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
+            structure: assemblyId ? {
+                name: 'assembly',
+                params: { id: assemblyId }
+            } : {
+                name: 'model',
+                params: {}
+            },
+            showUnitcell: false,
+            representationPreset: 'auto'
+        });
+        const model = await this.plugin.builders.structure.createModel(trajectory);
+        const structure = await this.plugin.builders.structure.createStructure(model, assemblyId ? { name: 'assembly', params: { id: assemblyId } } : { name: 'model', params: {} });
+        const ligand = await this.plugin.builders.structure.tryCreateComponentStatic(structure, 'ligand');
+        if (ligand) await this.plugin.builders.structure.representation.addRepresentation(ligand, { type: 'spacefill', color: 'element-symbol', colorParams: { carbonColor: { name: 'element-symbol', params: {} } } });
+    }
+
     setBackground(color: number) {
         PluginCommands.Canvas3D.SetSettings(this.plugin, { settings: props => { props.renderer.backgroundColor = Color(color); } });
+    }
+
+    setClipping() {
+        PluginCommands.Canvas3D.SetSettings(this.plugin, { settings: props => { props.cameraClipping.far = false; } });
     }
 
     toggleSpin() {
@@ -143,17 +169,19 @@ class BasicWrapper {
     };
 
     interactivity = {
-        highlightOn: () => {
+        highlightOnRes: (res: string) => {
+			const seq_id = Number( res );
             const data = this.plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
             if (!data) return;
 
-            const seq_id = 7;
             const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-                'residue-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_seq_id(), seq_id]),
-                'group-by': Q.struct.atomProperty.macromolecular.residueKey()
-            }), data);
+	    'residue-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_seq_id(), seq_id]),
+	    'group-by': Q.struct.atomProperty.macromolecular.residueKey()
+	    }), data);
             const loci = StructureSelection.toLociWithSourceUnits(sel);
             this.plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
+	    this.plugin.managers.structure.focus.addFromLoci(loci);
+	    this.plugin.managers.camera.focusLoci(loci);
         },
         clearHighlight: () => {
             this.plugin.managers.interactivity.lociHighlights.highlightOnly({ loci: EmptyLoci });
