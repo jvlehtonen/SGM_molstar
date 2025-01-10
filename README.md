@@ -1,3 +1,20 @@
+# Fork of Mol* for SGM (SynGAP Missense Server)
+
+### Purpose
+
+Frankly, this is just to get Mol* viewer into (SGM) web site by modifying the "basic-wrapper" example. I have no idea how to do it "properly" as I know next to nothing about TypeScript, JavaScript, or Mol*.
+
+### Build for SGM:
+    npm install
+    npm run sgm
+
+Take files from `build/examples/basic-wrapper/`
+
+(End of fork-specific part)
+
+---
+
+
 [![License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](./LICENSE)
 [![npm version](https://badge.fury.io/js/molstar.svg)](https://www.npmjs.com/package/molstar)
 [![Build](https://github.com/molstar/molstar/actions/workflows/node.yml/badge.svg)](https://github.com/molstar/molstar/actions/workflows/node.yml)
