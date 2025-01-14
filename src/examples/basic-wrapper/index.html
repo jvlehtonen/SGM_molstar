@@ -117,11 +117,11 @@
       }
     </style>
     <link rel="stylesheet" type="text/css" href="molstar.css" />
-    <link rel="icon" type="image/png" href="/images/SynGAP.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/misc/titles/SynGAP.png" sizes="32x32" />
     <script type="text/javascript" src="./index.js"></script>
   </head>
   <body>
-      <h1><a href="/index.html"><span><img src="/images/logo_sgm-3d-viewer.png"
+      <h1><a href="/index.html"><span><img src="/misc/titles/sgm_viewer.png"
       alt="SynGap Missense Server" style="height:98px;"></span></a></h1>
       <nav>
 	<a href="/index.html">Home</a> |
@@ -270,7 +270,7 @@
 	        'https://syngapmissenseserver.utu.fi/data/simulation_'
 	        + sim + '/' + pdbId + '.pdb';
 	    await BasicMolStarWrapper.load({ url: url, format: fmt });
-	    var doc = 'https://syngapmissenseserver.utu.fi/data/tables/' + pdbId + '.html';
+	    var doc = 'https://syngapmissenseserver.utu.fi/viewer/table.php?q=' + pdbId;
 	    $('data').src = doc;
 	    if (pdbId != 'WT') {
 		let residue = pdbId.substring(1, 4);
